@@ -94,6 +94,9 @@ ifeq ($(KERNEL_BUILD), 0)
 		include $(AUDIO_ROOT)/config/bengalauto.conf
 		export
 		INCS    +=  -include $(AUDIO_ROOT)/config/bengalautoconf.h
+                ifeq ($(CONFIG_KERNEL_CUSTOM_FACTORY), y)
+                INCS    +=  -include $(AUDIO_ROOT)/config/factoryaudio.h
+                endif
 	endif
 	ifeq ($(CONFIG_ARCH_SCUBA), y)
 		include $(AUDIO_ROOT)/config/bengalauto.conf
