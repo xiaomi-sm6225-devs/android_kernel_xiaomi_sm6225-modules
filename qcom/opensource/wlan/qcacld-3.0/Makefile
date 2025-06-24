@@ -12,27 +12,28 @@ KERNEL_SRC ?= /lib/modules/$(shell uname -r)/build
 M ?= $(shell pwd)
 
 ifeq ($(WLAN_ROOT),)
+WLAN_CHIPSET := qca_cld3
+LOCAL_DEV_NAME := $(patsubst .%,%,\
+	$(lastword $(strip $(subst /, ,$(M)))))
+
 KBUILD_OPTIONS += \
-    WLAN_ROOT=$(KERNEL_SRC)/$(M)/.qca6390 \
-    WLAN_PLATFORM_ROOT=$(KERNEL_SRC)/$(M)/../platform \
-    WLAN_COMMON_ROOT=cmn \
-    WLAN_COMMON_INC=$(KERNEL_SRC)/$(M)/cmn \
-    WLAN_FW_API=$(KERNEL_SRC)/$(M)/../fw-api \
+    WLAN_ROOT=$(KERNEL_SRC)/$(M) \
     CONFIG_QCA_CLD_WLAN=m \
-    CONFIG_CNSS_QCA6390=y \
     CONFIG_CNSS_OUT_OF_TREE=y \
     CONFIG_CNSS2=m \
+    CONFIG_ICNSS2=m \
     CONFIG_CNSS2_QMI=y \
+    CONFIG_ICNSS2_QMI=y \
     CONFIG_CNSS_QMI_SVC=m \
     CONFIG_CNSS_PLAT_IPC_QMI_SVC=m \
     CONFIG_CNSS_GENL=m \
     CONFIG_WCNSS_MEM_PRE_ALLOC=m \
     CONFIG_CNSS_UTILS=m \
-    WLAN_PROFILE=qca6390 \
-    DYNAMIC_SINGLE_CHIP=qca6390 \
-    MODNAME=qca_cld3_wlan \
-    DEVNAME=qca6390 \
     BOARD_PLATFORM=bengal \
+    WLAN_PROFILE=$(LOCAL_DEV_NAME) \
+    DYNAMIC_SINGLE_CHIP=$(LOCAL_DEV_NAME) \
+    MODNAME=$(WLAN_CHIPSET)_$(LOCAL_DEV_NAME) \
+    DEVNAME=$(LOCAL_DEV_NAME) \
     WLAN_CTRL_NAME=wlan
 endif
 
