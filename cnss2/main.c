@@ -5242,11 +5242,6 @@ static int cnss_misc_init(struct cnss_plat_data *plat_priv)
 	if (plat_priv->device_id == PEACH_DEVICE_ID)
 		cnss_set_feature_list(plat_priv, CNSS_AUX_UC_SUPPORT_V01);
 
-	ret = cnss_get_bdf_filename_from_dt(plat_priv);
-	if (ret) {
-		//If can not get the customer bdf, let default bdf be loaded
-		cnss_pr_err("Get customer bdf filename error!\n");
-	}
 	return 0;
 }
 
@@ -5754,30 +5749,6 @@ int cnss_get_curr_therm_cdev_state(struct device *dev,
 	return -EINVAL;
 }
 EXPORT_SYMBOL(cnss_get_curr_therm_cdev_state);
-
-static int cnss_get_bdf_filename_from_dt(struct cnss_plat_data *plat_priv)
-{
-	const char* tmp_str = NULL;
-	int ret = 0;
-	size_t bdf_len;
-
-	if (!plat_priv || !plat_priv->plat_dev)
-		return -EINVAL;
-	memset(plat_priv->bdfname_dt, 0, sizeof(plat_priv->bdfname_dt));
-	ret = of_property_read_string_index(plat_priv->plat_dev->dev.of_node, "bdf-names", 0,
-						&tmp_str);
-	if (ret == 0 && tmp_str) {
-		bdf_len = strlcpy(plat_priv->bdfname_dt, tmp_str,
-			sizeof(plat_priv->bdfname_dt));
-		if (bdf_len >= sizeof(plat_priv->bdfname_dt)) {
-			cnss_pr_err("BDF filename too long (%zu bytes), truncated to %zu\n",
-				bdf_len, sizeof(plat_priv->bdfname_dt) - 1);
-            		return -EINVAL;
-        	}
-	}
-
-	return ret;
-}
 
 static int cnss_probe(struct platform_device *plat_dev)
 {
