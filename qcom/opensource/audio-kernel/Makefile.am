@@ -1,6 +1,6 @@
 #QTI_TECHPACK is used since kernel 5.15
 ifeq ($(QTI_TECHPACK), true)
-AUDIO_KERNEL_PATH=$(PWD)/../../../vendor/qcom/opensource/audio-kernel-ar/
+AUDIO_KERNEL_PATH=$(PWD)/../../../sm6225-modules/qcom/opensource/audio-kernel-ar/
 AUDIO_ROOT=$(AUDIO_KERNEL_PATH)
 # Use USERINCLUDE when you must reference the UAPI directories only.
 USERINCLUDE     += \

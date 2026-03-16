@@ -16,20 +16,20 @@
 #else
 	#ifdef CONFIG_ARCH_SCUBA
             #if defined(RMNET_LA_PLATFORM)
-                #define TRACE_INCLUDE_PATH ../../../../vendor/qcom/opensource/datarmnet/core
+                #define TRACE_INCLUDE_PATH ../../../../sm6225-modules/qcom/opensource/datarmnet/core
             #else
 		#define TRACE_INCLUDE_PATH ../../../../../../../src/datarmnet/core
             #endif
         #elif defined(CONFIG_ARCH_KHAJE)
             #if defined(RMNET_LA_PLATFORM)
-                #define TRACE_INCLUDE_PATH ../../../../vendor/qcom/opensource/datarmnet/core
+                #define TRACE_INCLUDE_PATH ../../../../sm6225-modules/qcom/opensource/datarmnet/core
             #else
                 #define TRACE_INCLUDE_PATH ../../../../../../../src/datarmnet/core
             #endif
 	#elif defined(__arch_um__)
 		#define TRACE_INCLUDE_PATH ../../../../datarmnet/core
 	#else
-		#define TRACE_INCLUDE_PATH ../../../../vendor/qcom/opensource/datarmnet/core
+		#define TRACE_INCLUDE_PATH ../../../../sm6225-modules/qcom/opensource/datarmnet/core
 	#endif /* CONFIG_ARCH_KHAJE */
 #endif /* endif LINUX_VERSION_CODE < KERNEL_VERSION(5,5,0) */
 
