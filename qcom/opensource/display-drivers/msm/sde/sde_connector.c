@@ -21,6 +21,7 @@
 #include "sde_vm.h"
 #include <drm/drm_probe_helper.h>
 #include <linux/version.h>
+#include "mi_disp/mi_sde_connector.h"
 
 #define BL_NODE_NAME_SIZE 32
 #define HDR10_PLUS_VSIF_TYPE_CODE      0x81
@@ -3374,6 +3375,8 @@ struct drm_connector *sde_connector_init(struct drm_device *dev,
 			goto error_cleanup_fence;
 		}
 	}
+
+	mi_sde_connector_register_esd_irq(c_conn);
 
 	rc = sde_connector_get_info(&c_conn->base, &display_info);
 	if (!rc && (connector_type == DRM_MODE_CONNECTOR_DSI) &&

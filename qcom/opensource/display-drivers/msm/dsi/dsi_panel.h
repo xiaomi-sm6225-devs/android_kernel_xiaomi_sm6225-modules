@@ -22,6 +22,7 @@
 #include "dsi_pwr.h"
 #include "dsi_parser.h"
 #include "msm_drv.h"
+#include "mi_disp/mi_dsi_panel.h"
 
 #define MAX_BL_LEVEL 4096
 #define MAX_BL_SCALE_LEVEL 1024
@@ -190,6 +191,7 @@ struct drm_panel_esd_config {
 	u8 *return_buf;
 	u8 *status_buf;
 	u32 groups;
+	struct mi_drm_panel_esd_config mi_cfg;
 };
 
 struct dsi_panel_spr_info {

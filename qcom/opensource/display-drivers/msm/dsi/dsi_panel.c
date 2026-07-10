@@ -17,6 +17,7 @@
 #include "sde_dbg.h"
 #include "sde_dsc_helper.h"
 #include "sde_vdc_helper.h"
+#include "mi_disp/mi_dsi_panel.h"
 
 /**
  * topology is currently defined by a set of following 3 values:
@@ -3497,6 +3498,11 @@ static int dsi_panel_parse_esd_config(struct dsi_panel *panel)
 
 	esd_config = &panel->esd_config;
 	esd_config->status_mode = ESD_MODE_MAX;
+
+	/* esd-err-flag method will be prefered */
+	if (mi_dsi_panel_parse_esd_gpio_config(panel, esd_config))
+		return 0;
+
 	esd_config->esd_enabled = utils->read_bool(utils->data,
 		"qcom,esd-check-enabled");
 
@@ -4891,6 +4897,7 @@ int dsi_panel_disable(struct dsi_panel *panel)
 
 	/* Avoid sending panel off commands when ESD recovery is underway */
 	if (!atomic_read(&panel->esd_recovery_pending)) {
+		panel->panel_initialized = false;
 		/*
 		 * Need to set IBB/AB regulator mode to STANDBY,
 		 * if panel is going off from AOD mode.
