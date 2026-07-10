@@ -2547,6 +2547,30 @@ static int aw87xxx_pa_dev_0_event(struct snd_soc_dapm_widget *w, struct snd_kcon
 }
 #endif /* CONFIG_SND_SOC_AW87XXX */
 
+#if defined(CONFIG_SND_SOC_SIPA)
+extern int wcd937x_sia81xx_resume(void);
+extern wcd937x_sia81xx_suspend(void);
+static int sia81xx_dev_0_pa_event(struct snd_soc_dapm_widget *w,
+		     struct snd_kcontrol *control, int event)
+{
+	switch (event) {
+	case SND_SOC_DAPM_POST_PMU:
+		wcd937x_sia81xx_resume();
+		pr_debug("%s: power on", __func__);
+		break;
+	case SND_SOC_DAPM_PRE_PMD:
+		wcd937x_sia81xx_suspend();
+		pr_debug("%s: power off", __func__);
+		break;
+	default:
+		pr_err("%s: invalid DAPM event %d\n", __func__, event);
+		break;
+	}
+
+	return 0;
+}
+#endif /* CONFIG_SND_SOC_SIPA */
+
 #if defined(CONFIG_SND_SOC_FS1815)
 extern void fsm_speaker_onn(void);
 extern void fsm_speaker_off(void);
@@ -2726,6 +2750,11 @@ static const struct snd_soc_dapm_widget wcd937x_dapm_widgets[] = {
 				aw87xxx_pa_dev_0_event, SND_SOC_DAPM_POST_PMU |
 				SND_SOC_DAPM_PRE_PMD),
 #endif /* CONFIG_SND_SOC_AW87XXX */
+#if defined(CONFIG_SND_SOC_SIPA)
+	SND_SOC_DAPM_OUT_DRV_E("SIA81XX_DEV_0", SND_SOC_NOPM, 0, 0, NULL, 0,
+				sia81xx_dev_0_pa_event, SND_SOC_DAPM_POST_PMU |
+				SND_SOC_DAPM_PRE_PMD),
+#endif /* CONFIG_SND_SOC_SIPA */
 #if defined(CONFIG_SND_SOC_FS1815)
 	SND_SOC_DAPM_OUT_DRV_E("FS1815_DEV_0", SND_SOC_NOPM, 0, 0, NULL, 0,
 				fs1815_dev_0_pa_event, SND_SOC_DAPM_POST_PMU |
@@ -2846,11 +2875,15 @@ static const struct snd_soc_dapm_route wcd937x_audio_map[] = {
 	{"RDAC4", NULL, "RX3"},
 	{"AUX_RDAC", "Switch", "RDAC4"},
 	{"AUX PGA", NULL, "AUX_RDAC"},
-#if defined(CONFIG_SND_SOC_AW87XXX) || defined(CONFIG_SND_SOC_FS1815)
+#if defined(CONFIG_SND_SOC_AW87XXX) || defined(CONFIG_SND_SOC_SIPA) || defined(CONFIG_SND_SOC_FS1815)
 #if defined(CONFIG_SND_SOC_AW87XXX)
 	{"AW87XXX_DEV_0", NULL, "AUX PGA"},
 	{"AUX", NULL, "AW87XXX_DEV_0"},
 #endif /* CONFIG_SND_SOC_AW87XXX */
+#if defined(CONFIG_SND_SOC_SIPA)
+	{"SIA81XX_DEV_0", NULL, "AUX PGA"},
+	{"AUX", NULL, "SIA81XX_DEV_0"},
+#endif /* CONFIG_SND_SOC_SIPA */
 #if defined(CONFIG_SND_SOC_FS1815)
 	{"FS1815_DEV_0", NULL, "AUX PGA"},
 	{"AUX", NULL, "FS1815_DEV_0"},

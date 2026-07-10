@@ -43,6 +43,10 @@
 #include "msm_common.h"
 #include "msm_bengal_dailink.h"
 
+#ifdef CONFIG_SND_SOC_SIPA
+#include "codecs/sipa/sipa_aux_dev_if.h"
+#endif /*CONFIG_SND_SOC_SIPA*/
+
 #ifdef CONFIG_SND_SOC_FS1815
 #include "codecs/fs1815/fsm_public.h"
 #endif /*CONFIG_SND_SOC_FS1815*/
@@ -1475,6 +1479,10 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 			__func__, "qcom,wsa-aux-dev-prefix");
 	}
 
+#ifdef CONFIG_SND_SOC_SIPA
+	soc_aux_init_only_sia81xx(pdev, card);
+#endif /*CONFIG_SND_SOC_SIPA*/
+
 	ret = devm_snd_soc_register_card(&pdev->dev, card);
 	if (ret == -EPROBE_DEFER) {
 		if (codec_reg_done)
@@ -1606,6 +1614,9 @@ static int msm_asoc_machine_probe(struct platform_device *pdev)
 ret:
 	return 0;
 err:
+#ifdef CONFIG_SND_SOC_SIPA
+	soc_aux_deinit_only_sia81xx(pdev, card);
+#endif /*CONFIG_SND_SOC_SIPA*/
 	devm_kfree(&pdev->dev, pdata);
 	return ret;
 }
