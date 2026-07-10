@@ -1878,6 +1878,8 @@ const char *cmd_set_prop_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-post-mode-switch-on-command",
 	"qcom,mdss-dsi-qsync-on-commands",
 	"qcom,mdss-dsi-qsync-off-commands",
+	"qcom,mdss-dsi-dispparam-fps-120hz-command",
+	"qcom,mdss-dsi-dispparam-fps-60hz-command",
 };
 
 const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
@@ -1906,6 +1908,8 @@ const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-post-mode-switch-on-command-state",
 	"qcom,mdss-dsi-qsync-on-commands-state",
 	"qcom,mdss-dsi-qsync-off-commands-state",
+	"qcom,mdss-dsi-dispparam-fps-120hz-command-state",
+	"qcom,mdss-dsi-dispparam-fps-60hz-command-state",
 };
 
 int dsi_panel_get_cmd_pkt_count(const char *data, u32 length, u32 *cnt)
@@ -4851,6 +4855,16 @@ int dsi_panel_post_enable(struct dsi_panel *panel)
 	if (rc) {
 		DSI_ERR("[%s] failed to send DSI_CMD_SET_POST_ON cmds, rc=%d\n",
 		       panel->name, rc);
+		goto error;
+	}
+
+	rc = dsi_panel_tx_cmd_set(
+		panel, (panel->cur_mode->timing.refresh_rate == 120) ?
+			       DSI_CMD_SET_DISP_FPS_120HZ :
+			       DSI_CMD_SET_DISP_FPS_60HZ);
+	if (rc) {
+		DSI_ERR("[%s] failed to send cmd %d, rc=%d\n",
+			panel->name, cmd, rc);
 		goto error;
 	}
 error:
