@@ -17,6 +17,9 @@
 #define CAM_SENSOR_PINCTRL_STATE_SLEEP "cam_suspend"
 #define CAM_SENSOR_PINCTRL_STATE_DEFAULT "cam_default"
 
+#define CAM_SENSOR_FRONT_MIN_VOLTAGE 1050000
+#define CAM_SENSOR_FRONT_MAX_VOLTAGE 1200000
+
 #define VALIDATE_VOLTAGE(min, max, config_val) ((config_val) && \
 	(config_val >= min) && (config_val <= max))
 
@@ -1113,6 +1116,10 @@ int32_t msm_camera_fill_vreg_params(
 					if (VALIDATE_VOLTAGE(
 						soc_info->rgltr_min_volt[j],
 						soc_info->rgltr_max_volt[j],
+						power_setting[i].config_val) ||
+					    VALIDATE_VOLTAGE(
+						CAM_SENSOR_FRONT_MIN_VOLTAGE,
+						CAM_SENSOR_FRONT_MAX_VOLTAGE,
 						power_setting[i].config_val))
 						power_setting[i].valid_config = true;
 
