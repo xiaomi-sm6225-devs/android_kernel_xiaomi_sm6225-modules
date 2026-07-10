@@ -944,6 +944,10 @@ struct snd_soc_card snd_soc_card_stub_msm = {
 	.name		= "bengal-stub-snd-card",
 };
 
+#ifdef CONFIG_SND_SOC_AW87XXX
+extern int aw87xxx_add_codec_controls(void *codec);
+#endif /*CONFIG_SND_SOC_AWINIC_AW87XXX*/
+
 static int msm_audrx_stub_init(struct snd_soc_pcm_runtime *rtd)
 {
 	return 0;
@@ -1159,6 +1163,15 @@ static int msm_rx_tx_codec_init(struct snd_soc_pcm_runtime *rtd)
 	snd_soc_dapm_new_controls(dapm, msm_int_dapm_widgets,
 		ARRAY_SIZE(msm_int_dapm_widgets));
 	pr_err("%s:: dapm new controls msm_int_dapm_widgets \n", __func__);
+
+#ifdef CONFIG_SND_SOC_AW87XXX
+	ret = aw87xxx_add_codec_controls(bolero_component);
+	if (ret < 0) {
+		pr_err("%s: aw87xxx_add_codec_controls failed, err %d\n",
+			__func__, ret);
+		return ret;
+	};
+#endif
 
 	snd_soc_dapm_ignore_suspend(dapm, "Digital Mic0");
 	snd_soc_dapm_ignore_suspend(dapm, "Digital Mic1");
