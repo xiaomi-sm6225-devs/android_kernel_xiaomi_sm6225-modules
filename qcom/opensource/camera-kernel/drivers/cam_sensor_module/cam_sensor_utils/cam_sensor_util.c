@@ -10,6 +10,10 @@
 #include "cam_mem_mgr.h"
 #include "cam_res_mgr_api.h"
 
+#include "../../wl2866d/wl2866d.h"
+#define MAX_DELAY_TIME 65420
+#define DELAY_SETP 1000
+
 #define CAM_SENSOR_PINCTRL_STATE_SLEEP "cam_suspend"
 #define CAM_SENSOR_PINCTRL_STATE_DEFAULT "cam_default"
 
@@ -2098,6 +2102,10 @@ int cam_sensor_core_power_up(struct cam_sensor_power_ctrl_t *ctrl,
 	uint32_t                         seq_min_volt = 0;
 	uint32_t                         seq_max_volt = 0;
 
+	uint16_t wl2866_time_delay = 0;
+	int wl2866_iotype = -1;
+	int retry = 0;
+
 	CAM_DBG(CAM_SENSOR, "Enter");
 	if (!ctrl) {
 		CAM_ERR(CAM_SENSOR, "Invalid ctrl handle");
@@ -2305,6 +2313,23 @@ int cam_sensor_core_power_up(struct cam_sensor_power_ctrl_t *ctrl,
 				goto power_up_failed;
 			}
 			break;
+		case SENSOR_WL2866D_DVDD1:
+		case SENSOR_WL2866D_DVDD2:
+		case SENSOR_WL2866D_AVDD1:
+		case SENSOR_WL2866D_AVDD2:
+			wl2866_iotype = ((int)power_setting->seq_type) - SENSOR_WL2866D_DVDD1;
+
+			for (retry = 0; retry < 3; retry++) {
+				rc = wl2866d_camera_power_control(wl2866_iotype, power_setting->config_val);
+				if (rc >= 0) break;
+			}
+
+			if (rc < 0) goto power_up_failed;
+
+			wl2866_time_delay = MIN(DELAY_SETP * (power_setting->delay), MAX_DELAY_TIME);
+
+			usleep_range(wl2866_time_delay , wl2866_time_delay + 100);
+			break;
 		default:
 			CAM_ERR(CAM_SENSOR, "error power seq type %d",
 				power_setting->seq_type);
@@ -2461,6 +2486,10 @@ int cam_sensor_util_power_down(struct cam_sensor_power_ctrl_t *ctrl,
 	struct cam_sensor_power_setting *ps = NULL;
 	struct msm_camera_gpio_num_info *gpio_num_info = NULL;
 
+	uint16_t wl2866_time_delay = 0;
+	int wl2866_iotype = -1;
+	int retry = 0;
+
 	CAM_DBG(CAM_SENSOR, "Enter");
 	if (!ctrl || !soc_info) {
 		CAM_ERR(CAM_SENSOR, "failed ctrl %pK",  ctrl);
@@ -2574,6 +2603,23 @@ int cam_sensor_util_power_down(struct cam_sensor_power_ctrl_t *ctrl,
 			if (ret < 0)
 				CAM_ERR(CAM_SENSOR,
 					"Error disabling VREG GPIO");
+			break;
+		case SENSOR_WL2866D_DVDD1:
+		case SENSOR_WL2866D_DVDD2:
+		case SENSOR_WL2866D_AVDD1:
+		case SENSOR_WL2866D_AVDD2:
+			wl2866_iotype = ((int)pd->seq_type) - SENSOR_WL2866D_DVDD1;
+
+			for (retry = 0; retry < 3; retry++) {
+				ret = wl2866d_camera_power_control(wl2866_iotype, pd->config_val);
+				if (ret >= 0) break;
+			}
+
+			if (ret < 0) break;
+
+			wl2866_time_delay = MIN(DELAY_SETP * (pd->delay), MAX_DELAY_TIME);
+
+			usleep_range(wl2866_time_delay , wl2866_time_delay + 100);
 			break;
 		default:
 			CAM_ERR(CAM_SENSOR, "error power seq type %d",
