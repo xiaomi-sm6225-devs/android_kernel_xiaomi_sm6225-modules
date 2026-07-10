@@ -2547,6 +2547,28 @@ static int aw87xxx_pa_dev_0_event(struct snd_soc_dapm_widget *w, struct snd_kcon
 }
 #endif /* CONFIG_SND_SOC_AW87XXX */
 
+#if defined(CONFIG_SND_SOC_FS1815)
+extern void fsm_speaker_onn(void);
+extern void fsm_speaker_off(void);
+static int fs1815_dev_0_pa_event(struct snd_soc_dapm_widget *w,
+		     struct snd_kcontrol *control, int event)
+{
+	switch (event) {
+	case SND_SOC_DAPM_POST_PMU:
+		fsm_speaker_onn();
+		break;
+	case SND_SOC_DAPM_PRE_PMD:
+		fsm_speaker_off();
+		break;
+	default:
+		pr_err("%s: invalid DAPM event %d\n", __func__, event);
+		break;
+	}
+
+	return 0;
+}
+#endif /* CONFIG_SND_SOC_FS1815 */
+
 static const struct snd_soc_dapm_widget wcd937x_dapm_widgets[] = {
 
 	/*input widgets*/
@@ -2704,6 +2726,11 @@ static const struct snd_soc_dapm_widget wcd937x_dapm_widgets[] = {
 				aw87xxx_pa_dev_0_event, SND_SOC_DAPM_POST_PMU |
 				SND_SOC_DAPM_PRE_PMD),
 #endif /* CONFIG_SND_SOC_AW87XXX */
+#if defined(CONFIG_SND_SOC_FS1815)
+	SND_SOC_DAPM_OUT_DRV_E("FS1815_DEV_0", SND_SOC_NOPM, 0, 0, NULL, 0,
+				fs1815_dev_0_pa_event, SND_SOC_DAPM_POST_PMU |
+				SND_SOC_DAPM_PRE_PMD),
+#endif /* CONFIG_SND_SOC_FS1815 */
 
 };
 
@@ -2819,12 +2846,18 @@ static const struct snd_soc_dapm_route wcd937x_audio_map[] = {
 	{"RDAC4", NULL, "RX3"},
 	{"AUX_RDAC", "Switch", "RDAC4"},
 	{"AUX PGA", NULL, "AUX_RDAC"},
+#if defined(CONFIG_SND_SOC_AW87XXX) || defined(CONFIG_SND_SOC_FS1815)
 #if defined(CONFIG_SND_SOC_AW87XXX)
 	{"AW87XXX_DEV_0", NULL, "AUX PGA"},
 	{"AUX", NULL, "AW87XXX_DEV_0"},
+#endif /* CONFIG_SND_SOC_AW87XXX */
+#if defined(CONFIG_SND_SOC_FS1815)
+	{"FS1815_DEV_0", NULL, "AUX PGA"},
+	{"AUX", NULL, "FS1815_DEV_0"},
+#endif /* CONFIG_SND_SOC_FS1815 */
 #else
 	{"AUX", NULL, "AUX PGA"},
-#endif /* CONFIG_SND_SOC_AW87XXX */
+#endif
 
 	{"RDAC3_MUX", "RX3", "RX3"},
 	{"RDAC3_MUX", "RX1", "RX1"},

@@ -43,6 +43,10 @@
 #include "msm_common.h"
 #include "msm_bengal_dailink.h"
 
+#ifdef CONFIG_SND_SOC_FS1815
+#include "codecs/fs1815/fsm_public.h"
+#endif /*CONFIG_SND_SOC_FS1815*/
+
 #define DRV_NAME "bengal-asoc-snd"
 #define __CHIPSET__ "BENGAL "
 #define MSM_DAILINK_NAME(name) (__CHIPSET__#name)
@@ -948,6 +952,10 @@ struct snd_soc_card snd_soc_card_stub_msm = {
 extern int aw87xxx_add_codec_controls(void *codec);
 #endif /*CONFIG_SND_SOC_AWINIC_AW87XXX*/
 
+#if defined(CONFIG_SND_SOC_FS1815)
+extern void fsm_add_codec_controls(struct snd_soc_component *codec);
+#endif /*CONFIG_SND_SOC_FS1815*/
+
 static int msm_audrx_stub_init(struct snd_soc_pcm_runtime *rtd)
 {
 	return 0;
@@ -1171,6 +1179,10 @@ static int msm_rx_tx_codec_init(struct snd_soc_pcm_runtime *rtd)
 			__func__, ret);
 		return ret;
 	};
+#endif
+
+#if defined(CONFIG_SND_SOC_FS1815)
+	fsm_add_codec_controls(bolero_component);
 #endif
 
 	snd_soc_dapm_ignore_suspend(dapm, "Digital Mic0");
